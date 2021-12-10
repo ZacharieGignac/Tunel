@@ -27,8 +27,11 @@
         */
 
         $tunelConnection.onStatusChanged(status => {
-            if(status.status == 'connected') {
-                
+            if (status.status == 'connected') {
+                /*
+                $tunelWidgets('volume').onChange(wid => {
+                    console.log( wid);
+                });
                 $tunelWidgets('volume').addOutputBinding('volume','value','change');
                 $tunelWidgets('volume').addInputBinding('level','innerHTML');
                 $tunelWidgets('volume').addInputBinding('volume','value');
@@ -40,24 +43,28 @@
 
                 $tunelFunction('test').call('ca pue la marde');
                 */
-
+                
                 $tunelFunction('getLampHours').call(undefined,hours => {
                     document.getElementById('lamp').innerHTML = hours;
                 });
+                
 
+                $tunelWidgets('volume').addTwoWayBinding('volume', 'value', 'change');
             }
         });
+
+
     </script>
 </head>
 
 <body>
     <input type="range" min="1" max="100" value="50" id="volume">
-    <br/>
-    Le volume est à <span id='level'>0</span><br/>
+    <br />
+    Le volume est à <span id='level'>0</span><br />
     La lampe a <span id='lamp'>0</span> heures
 
 
-    
+
 
     <script>//registerListeners();</script>
 </body>

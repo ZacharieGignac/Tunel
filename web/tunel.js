@@ -23,6 +23,7 @@ var _widgets = [];
 var onWidgetChangeListeners = [];
 var onConnectionStatusChangedListeners = [];
 var functionCalls = [];
+var tunelInitCompleted = ()=>{};
 
 var tunelSocket = new WebSocket(`ws://${config.server.address}:${config.server.port}`);
 
@@ -203,6 +204,7 @@ tunelSocket.onmessage = function (message) {
             if (messageObject.version.substring(0, messageObject.version.indexOf('.')) == config.tunelVersion.substring(0, config.tunelVersion.indexOf('.'))) {
                 console.log('Version match');
                 processInit(messageObject.widgets);
+                tunelInitCompleted();
             }
             else {
                 tunelSocket.close();

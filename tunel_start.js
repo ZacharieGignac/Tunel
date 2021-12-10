@@ -65,15 +65,24 @@ class Tunel {
     registerFunction(functionName, func) {
         this.funcs.push({ functionName: functionName, func: func });
     }
-    callFunction(functionName, functionArgs, returnPath) {
-        this.funcs.forEach(f => {
-            if (f.functionName == functionName) {
-                const rtn = f.func(functionArgs);
-                if (returnPath != undefined) {
-                    returnPath(rtn);
+    callFunction(ws, functionName, functionArgs, returnPath) {
+        if (ws.auth) {
+            this.funcs.forEach(f => {
+                if (f.functionName == functionName) {
+                    const rtn = f.func(functionArgs);
+                    if (returnPath != undefined) {
+                        returnPath(rtn);
+                    }
                 }
+            });
+        }
+        else {
+            const authError = {
+                type: 'auth.error.needauth',
+                message: 'Authentication needed'
             }
-        });
+            ws.send(JSON.stringify(authError));
+        }
     }
     heartbeat(ws) {
         ws.isAlive = true;
@@ -85,7 +94,7 @@ class Tunel {
         setInterval(function ping() {
             tnl.wss.clients.forEach(function each(ws) {
                 if (ws.isAlive === false) {
-                    console.log(`Terminating client ${ws._socket.remoteAddress} (PING_TIMEOUT)`);
+                    console.log(`[QUIT] Client ${ws.clientId} (${ws._socket.remoteAddress}) (PING_TIMEOUT)`);
                     return ws.terminate();
                 }
 
@@ -109,8 +118,10 @@ class Tunel {
         console.log(`Auth request from ${dataObject.id} with token ${dataObject.token}`);
         if (dataObject.token == trueHash) {
             console.log(dataObject.id + ' authentication success!')
+            ws.clientId = dataObject.id;
             ws.auth = true;
             ws.send(AUTH_TRUE);
+            console.log(ws.clientId + ' is now connected!');
         }
         else {
             console.log(dataObject.id + ' authentication FAILED. Wrong token!');
@@ -211,9 +222,9 @@ class Tunel {
     }
     sendFunctionCallReturnValue(ws, id, value) {
         ws.send(JSON.stringify({
-            type:'functionrtnval',
-            id:id,
-            returnvalue:value
+            type: 'functionrtnval',
+            id: id,
+            returnvalue: value
         }));
     }
     onConnection(tnl, wss, ws) {
@@ -222,14 +233,14 @@ class Tunel {
 
         console.log(`Client connected. Count: ${wss.clients.size}`);
 
-        ws.on('disconnect', () => {
-            console.log('User disconnected.');
+        ws.on('close', (data) => {
+            console.log(`[QUIT] ${ws.clientId} disconnected gracefully`);
         });
 
         ws.on('message', function message(data) {
-       
-                //console.log('received: %s', data);
 
+            //console.log('received: %s', data);
+            try {
                 var dataObject = JSON.parse(data);
 
                 switch (dataObject.type) {
@@ -255,18 +266,18 @@ class Tunel {
                         break;
 
                     case 'functioncallwrtn':
-                        //name, args[], return
-                        //console.log(dataObject);
-                        tnl.callFunction(dataObject.functionName, dataObject.functionArgs, rtn => {
+                        tnl.callFunction(ws, dataObject.functionName, dataObject.functionArgs, rtn => {
                             tnl.sendFunctionCallReturnValue(ws, dataObject.id, rtn);
                         });
                         break;
                     case 'functioncall':
-                        console.log(dataObject);
-                        tnl.callFunction(dataObject.functionName, dataObject.functionArgs);
+                        tnl.callFunction(ws, dataObject.functionName, dataObject.functionArgs);
                 }
-            
-            
+            }
+            catch (receiveerror) {
+                console.log(`[ERROR] (ws.on 'message') CLIENT:${ws.clientId} E:${receiveerror}`);
+            }
+
         });
     }
 
@@ -275,7 +286,7 @@ class Tunel {
 const tnl = new Tunel(8080);
 
 tnl.registerFunction('test', testRegister);
-tnl.registerFunction('getLampHours',getLampHours);
+tnl.registerFunction('getLampHours', getLampHours);
 
 /*
 tnl.callFunction('test', 'MOU!!!!!!!', (rtn) => {
