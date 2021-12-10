@@ -3,10 +3,7 @@
 
 const tws = require('./tnlwebsocket');
 const tcons = require('./tnlconsole');
-
-
-
-
+const twidgets = require('./tnlwidgets');
 
 
 
@@ -21,11 +18,23 @@ function getLampHours() {
 
 
 
-console.log(tws.TunelWebsocket);
+var modules = {}
+
+modules.websocket = new tws.TunelWebsocket(8080, modules);
+modules.console = new tcons.TunelConsole(modules);
+modules.widgets = new twidgets.TunelWidgets(modules);
 
 
-const tnlwebsock = new tws.TunelWebsocket(8080);
-const tnlconsole = new tcons.TunelConsole(tnlwebsock);
+
+const toWebSocket = (e) => { modules.websocket.broadcastWidgetChangedInternal(e) };
+var projpower = new twidgets.Toggle('projpower','off',toWebSocket);
+var tvpower = new twidgets.Toggle('tvpower','on',toWebSocket);
+var volume = new twidgets.Range('volume',80,0,100,toWebSocket);
+
+
+modules.widgets.loadWidgets([projpower,tvpower,volume]);
+
+
 
 //tnl.registerFunction('test', testRegister);
 //tnl.registerFunction('getLampHours', getLampHours);

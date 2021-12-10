@@ -19,10 +19,11 @@ const AUTH_FALSE = JSON.stringify({
 });
 
 class TunelWebsocket {
-    constructor(port) {
-        console.log('TUNEL Starting...');
+    constructor(port,mods) {
+        this.mods = mods;
+        console.log('Websocket Starting...');
         this.wss = new webss.WebSocketServer({ port: port });
-        console.log(`Listening on port ${port}`);
+        console.log(`Websocket listening on port ${port}`);
         this.startIntervalCheck(this);
         this.funcs = [];
         this.wss.on('close', this.onClose);
@@ -112,20 +113,7 @@ class TunelWebsocket {
                 type: 'init',
                 systemName: 'SSE-DEV',
                 version: '1.0',
-                widgets: [
-                    {
-                        id: 'widget1',
-                        value: 'on'
-                    },
-                    {
-                        id: 'volume',
-                        value: '80'
-                    },
-                    {
-                        id: 'projector_lamp_hours',
-                        value: '765'
-                    }
-                ]
+                widgets: this.mods.widgets.getWidgetsForWeb()
             }
             console.log('---> Init reply');
             var initDataString = JSON.stringify(initData);
@@ -178,14 +166,13 @@ class TunelWebsocket {
             ws.send(JSON.stringify(authError));
         }
     }
-    broadcastWidgetChangedInternal(widgetstatus) {
+    broadcastWidgetChangedInternal(widgetstatus,context) {
         console.log(`---> Widget Changed id:${widgetstatus.id} value:${widgetstatus.value}`);
         var message = {
             type: 'widgetchanged',
             id: widgetstatus.id,
             value: widgetstatus.value
         }
-
         this.wss.clients.forEach(client => {
             client.send(JSON.stringify(message));
         });
@@ -196,6 +183,9 @@ class TunelWebsocket {
             id: id,
             returnvalue: value
         }));
+    }
+    updateServerWidget(widget) {
+        this.mods.widgets.updateWidget(widget);
     }
     onConnection(tnl, wss, ws) {
         ws.isAlive = true;
@@ -229,6 +219,7 @@ class TunelWebsocket {
                     case 'setwidgetvalue':
                         console.log(`<--- Set Widget Value id:${dataObject.id} value:${dataObject.value}`);
                         tnl.broadcastWidgetChanged(ws, dataObject);
+                        tnl.updateServerWidget(dataObject);
                         break;
 
                     case 'broadcastmessage':
