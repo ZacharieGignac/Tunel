@@ -264,7 +264,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
         sendWidgetValue('volume', volumebar.value);
     }
     */
+    var all = document.getElementsByTagName("*");
 
+    for (var i=0, max=all.length; i < max; i++) {
+        var el = all[i];
+        var bindingfrom = el.getAttribute('binding-from');
+        var elid = el.id;
+        var bindingto = el.getAttribute('binding-to');
+        var bindingproperty = el.getAttribute('binding-property');
+
+        if (bindingfrom) {
+            if (bindingproperty) {
+                $tunelWidgets(bindingfrom).addInputBinding(elid, bindingproperty);
+            }
+        }
+    }
     
 });
 /*

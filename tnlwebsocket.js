@@ -1,5 +1,8 @@
 const webss = require('ws');
 const crypto = require('crypto');
+const api = require('./api.js');
+
+const source = 'tnlwebsocket';
 
 const ERROR_AUTH_INVALIDTOKEN = JSON.stringify({
     type: 'auth.error.invalidtoken',
@@ -21,6 +24,7 @@ const AUTH_FALSE = JSON.stringify({
 class TunelWebsocket {
     constructor(port,mods) {
         this.mods = mods;
+        this._updateServerWidgetListener = [];
         console.log('Websocket Starting...');
         this.wss = new webss.WebSocketServer({ port: port });
         console.log(`Websocket listening on port ${port}`);
@@ -28,7 +32,11 @@ class TunelWebsocket {
         this.funcs = [];
         this.wss.on('close', this.onClose);
         this.wss.on('connection', (ws) => { this.onConnection(this, this.wss, ws) });
-
+    }
+    init() {
+        api.widgets.addWidgetUpdateListener((event) => {
+            this.notifyWidgetChanged(event);
+        });
     }
     test() {
         console.log('TEST!');
@@ -147,12 +155,9 @@ class TunelWebsocket {
 
     broadcastWidgetChanged(ws, widgetstatus) {
         if (ws.auth) {
-            console.log(`---> Widget Changed id:${widgetstatus.id} value:${widgetstatus.value}`);
-            var message = {
-                type: 'widgetchanged',
-                id: widgetstatus.id,
-                value: widgetstatus.value
-            }
+            //console.log(`---> Widget Changed id:${widgetstatus.id} value:${widgetstatus.value} updateSource:${widgetstatus.updateSource}`);
+            var message = widgetstatus;
+            message.type = 'widgetchanged';
 
             this.wss.clients.forEach(client => {
                 client.send(JSON.stringify(message));
@@ -166,15 +171,11 @@ class TunelWebsocket {
             ws.send(JSON.stringify(authError));
         }
     }
-    broadcastWidgetChangedInternal(widgetstatus,context) {
-        console.log(`---> Widget Changed id:${widgetstatus.id} value:${widgetstatus.value}`);
-        var message = {
-            type: 'widgetchanged',
-            id: widgetstatus.id,
-            value: widgetstatus.value
-        }
+    notifyWidgetChanged(widget) {
         this.wss.clients.forEach(client => {
-            client.send(JSON.stringify(message));
+            if (client.auth) {
+                this.broadcastWidgetChanged(client,widget);
+            }
         });
     }
     sendFunctionCallReturnValue(ws, id, value) {
@@ -185,7 +186,13 @@ class TunelWebsocket {
         }));
     }
     updateServerWidget(widget) {
-        this.mods.widgets.updateWidget(widget);
+        this._updateServerWidgetListener.forEach(uswl => {
+            uswl(widget);
+        });
+        //this.mods.widgets.updateWidget(widget); //depreciated
+    }
+    addUpdateServerWidgetListener(listener) {
+        this._updateServerWidgetListener.push(listener);
     }
     onConnection(tnl, wss, ws) {
         ws.isAlive = true;
@@ -200,7 +207,7 @@ class TunelWebsocket {
         ws.on('message', function message(data) {
 
             //console.log('received: %s', data);
-            try {
+            /*try {*/
                 var dataObject = JSON.parse(data);
 
                 switch (dataObject.type) {
@@ -217,8 +224,9 @@ class TunelWebsocket {
                         break;
 
                     case 'setwidgetvalue':
-                        console.log(`<--- Set Widget Value id:${dataObject.id} value:${dataObject.value}`);
-                        tnl.broadcastWidgetChanged(ws, dataObject);
+                        //console.log(`<--- Set Widget Value id:${dataObject.id} value:${dataObject.value}`);
+                        api.widgets.updateWidget({ id: dataObject.id, value: dataObject.value, client:ws.clientId});
+                        //tnl.broadcastWidgetChanged(ws, dataObject); //do not update widget directly
                         tnl.updateServerWidget(dataObject);
                         break;
 
@@ -227,17 +235,18 @@ class TunelWebsocket {
                         break;
 
                     case 'functioncallwrtn':
-                        tnl.callFunction(ws, dataObject.functionName, dataObject.functionArgs, rtn => {
-                            tnl.sendFunctionCallReturnValue(ws, dataObject.id, rtn);
-                        });
+                        var rtn = api.sharedfunctions.callFunction(dataObject.functionName, dataObject.functionArgs);
+                        tnl.sendFunctionCallReturnValue(ws, dataObject.id, rtn);
                         break;
                     case 'functioncall':
-                        tnl.callFunction(ws, dataObject.functionName, dataObject.functionArgs);
+                        api.sharedfunctions.callFunction(dataObject.functionName, dataObject.functionArgs);
                 }
-            }
+                
+            /*}
+            
             catch (receiveerror) {
                 console.log(`[ERROR] (ws.on 'message') CLIENT:${ws.clientId} E:${receiveerror}`);
-            }
+            }*/
 
         });
     }
