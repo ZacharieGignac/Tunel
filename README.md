@@ -82,6 +82,16 @@ JS
 $tunelWidgets('volume').addTwoWayBinding('volume', 'value', 'change');
 ```
 
+## Automatic binding without using any script (one way)
+```HTML
+Volume is at <span id="volume" binding-widget="volume" binding-property="innerHTML"></span>%
+```
+
+## Automatic binding without using any script (two way)
+```HTML
+<input type="range" id="volume" min="0" max="100" binding-widget="volume" binding-property="value" binding-event="onchange">
+```
+
 ## Calling a server-side function without return value
 ```JS
 $tunelFunction('testFunction').call();
