@@ -96,12 +96,39 @@ $tunelFunction('getLampHours').call('args here', hours => {
 ```
 
 # HTTP URL API
-Get widget value:
+## Get widget value:
 ```
 http://ip/api/v1/token/widgets/widgetid/get
 ```
 
-Set widget value
+## Set widget value
 ```
 http://ip/api/v1/token/widgets/widgetid/set/value
+```
+
+# REST API
+## Get widget value
+'HTTP GET' request to:
+```
+http://ip/api/v1/widgets
+```
+Body:
+```JS
+{
+  token:<token here>,
+  id:<id here>,
+}
+```
+## Get widget value
+'HTTP PUT' request to:
+```
+http://ip/api/v1/widgets
+```
+Body:
+```JS
+{
+  token:<token here>,
+  id:<id here>,
+  value:<value here>
+}
 ```
