@@ -22,6 +22,10 @@ This system is in early dev. Not much is working for now. This is mostly a proof
 * REST-API
 * Web-server
 * Token manager
+* SSH remote console server
+* Crestron CIP Client
+* Crestron CIP Server
+* Cisco Virtual Touchpanel (HTML)
 
 # Installation
 * Configure the "config" object in the tunel.js file (client-side)
