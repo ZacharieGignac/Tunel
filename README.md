@@ -94,3 +94,14 @@ $tunelFunction('getLampHours').call('args here', hours => {
     console.log(hours);
 });
 ```
+
+# HTTP URL API
+Get widget value:
+```
+http://ip/api/v1/token/widgets/widgetid/get
+```
+
+Set widget value
+```
+http://ip/api/v1/token/widgets/widgetid/set/value
+```
