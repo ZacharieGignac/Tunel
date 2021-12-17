@@ -1,0 +1,73 @@
+<html>
+
+<head>
+    <title>Websocket test</title>
+    <script src="tunel.js"></script>
+    <script lang="javascript">
+        /*
+        $tunelWidgets('volume').onChange(widget => {
+            document.getElementById('volume').value = widget.value;
+        });
+
+
+        function getVal() {
+            var vieLampe = $tunelWidgets('projector_lamp_hours').getValue();
+
+            console.log(vieLampe);
+        }
+        function setLamp() {
+            $tunelWidgets('projector_lamp_hours').setValue(54432);
+        }
+
+        function registerListeners() {
+
+                $tunelWidgets('volume').bindToElementValue('volume','mouseup');
+            
+        }
+        */
+
+        $tunelConnection.onStatusChanged(status => {
+            if (status.status == 'connected') {
+                /*
+                $tunelWidgets('volume').onChange(wid => {
+                    console.log( wid);
+                });
+                */
+                
+                //$tunelWidgets('volume').addInputBinding('level','innerHTML');
+
+                $tunelWidgets('volume').addOutputBinding('volume','value','change');
+                $tunelWidgets('volume').addInputBinding('volume','value');
+
+                /*
+                $tunelFunction('test').call('argument 1', rtn => {
+                    console.log(rtn);
+                });
+
+                $tunelFunction('test').call('ca pue la marde');
+                */
+                
+                /*
+                $tunelFunction('getLampHours').call(undefined,hours => {
+                    document.getElementById('lamp').innerHTML = hours;
+                });
+                
+
+                $tunelWidgets('volume').addTwoWayBinding('volume', 'value', 'change');
+                */
+            }
+        });
+
+
+    </script>
+</head>
+
+<body>
+    <input type="range" min="1" max="100" value="50" id="volume">
+    <br />
+    Le volume est à <span id='vol' binding-from="volume" binding-property="innerHTML">?</span><br />
+    
+    <script>//registerListeners();</script>
+</body>
+
+</html>

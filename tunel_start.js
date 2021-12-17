@@ -5,10 +5,56 @@ const twidgets = require('./tnlwidgets');
 const tws = require('./tnlwebsocket');
 const tcons = require('./tnlconsole');
 const sharedfuncs = require('./sharedfunctions');
+const express = require('express');
+
+
+var httpserver = express();
+
+console.log(__dirname + 'web');
+httpserver.use('/public', express.static(__dirname + '/public'));
+httpserver.get('/web', function (req, res) {
+    res.sendFile('index.html', { root: __dirname + "/public" });
+});
+httpserver.listen(8088);
 
 
 
 
+httpserver.get('/api/v1/:token/widgets/:widgetId/get', function (req, res) {
+    if (req.params.token == '1') {
+        let wdg = mods.widgets.get(req.params.widgetId);
+        if (wdg && req.params.widgetId) {
+            res.send({ id: wdg.id, value: wdg.value });
+        }
+        else {
+            res.send(`ERROR: Unknown widget or something something`);
+        }
+    }
+    else {
+        res.send(`ERROR: Invalid token`);
+    }
+});
+httpserver.get('/api/v1/:token/widgets/:widgetId/set/:value', function (req, res) {
+    if (req.params.token == '1') {
+        let wdg = mods.widgets.get(req.params.widgetId);
+        if (wdg && req.params.widgetId && req.params.value) {
+            mods.widgets.set(req.params.widgetId,req.params.value);
+            let wdg = mods.widgets.get(req.params.widgetId);
+            res.send({ id: wdg.id, value: wdg.value });
+        }
+        else {
+            res.send(`ERROR: Unknown widget or wrong value or something something`);
+        }
+    }
+    else {
+        res.send(`ERROR: Invalid token`);
+    }
+});
+
+
+httpserver.get('/api/v1/widgets', function (req, res) {
+    console.log('The other one');
+});
 
 
 function testRegister(args) {
@@ -47,11 +93,14 @@ mods.websocket.addUpdateServerWidgetListener((widget) => {
 
 
 const toWebSocket = (e) => { mods.websocket.broadcastWidgetChangedInternal(e) };
-var projpower = new twidgets.Toggle('projpower',false,toWebSocket);
-var tvpower = new twidgets.Toggle('tvpower',false,toWebSocket);
-var volume = new twidgets.Range('volume',80,0,100,toWebSocket);
+var projpower = new twidgets.Toggle('projpower', false);
+var tvpower = new twidgets.Toggle('tvpower', false);
+var volume = new twidgets.Range('volume', 80, 0, 100);
 
-var systemname = new twidgets.Value('systemname','PVE-DEV');
+var mouseX = new twidgets.Value('mousex', 0);
+var mouseY = new twidgets.Value('mousey', 0);
+
+var systemname = new twidgets.Value('systemname', 'PVE-DEV');
 
 /*
 volume.onChange((value) => {
@@ -59,7 +108,7 @@ volume.onChange((value) => {
 });
 */
 
-mods.widgets.loadWidgets([projpower,tvpower,volume,systemname]);
+mods.widgets.loadWidgets([projpower, tvpower, volume, systemname, mouseX, mouseY]);
 
 
 
@@ -82,10 +131,15 @@ api.console = mods.console;
 api.widgets = mods.widgets;
 api.sharedfunctions = sharedfuncs;
 
-function ppo() {
-    projpower.value = 'on';
+function ppo(val) {
+    if (val == 'toggle') {
+        projpower.toggle();
+    }
+    else {
+        projpower.value = val;
+    }
 }
-sharedfuncs.addSharedFunction('projPowerOn',ppo);
+sharedfuncs.addSharedFunction('projpower', ppo);
 
 //console.log(sharedfuncs.callFunction('logtest','mon texte ici'));
 
@@ -94,5 +148,6 @@ api.websocket.init();
 
 /* load room script */
 const room = require('./room.js');
+const { Server } = require('ws');
 mods.room = new room.Room();
 api.room = room.room;

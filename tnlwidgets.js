@@ -36,6 +36,21 @@ class TunelWidgets {
     addWidgetUpdateListener(listener) {
         this._widgetUpdateListeners.push(listener);
     }
+    get(id) {
+        for (var i = 0; i < this.widgetsList.length; i++) {
+            if (this.widgetsList[i].id == id) {
+                return this.widgetsList[i];
+            }
+        }
+    }
+    set(id, value) {
+        console.log(`Setting ${id} to ${value}`);
+        for (var i = 0; i < this.widgetsList.length; i++) {
+            if (this.widgetsList[i].id == id) {
+                this.widgetsList[i].value = value;
+            }
+        }
+    }
 }
 
 class Widget {
@@ -65,6 +80,8 @@ class Toggle extends Widget { //TODO TRUE FALSE UNIQUEMENT
     set value(v) {
         if (v == 'on') { v = true }
         else if (v == 'off') { v = false }
+        if (v == 'true') { v = true }
+        if (v == 'false') { v = false }
         else if (v == true || v == false) { }
         else {
             v = false;
@@ -74,6 +91,9 @@ class Toggle extends Widget { //TODO TRUE FALSE UNIQUEMENT
     }
     get value() {
         return this._value;
+    }
+    toObject() {
+        return ({ id:this.id, value:this._value });
     }
 }
 
@@ -94,6 +114,9 @@ class Range extends Widget {
     get value() {
         return this._value;
     }
+    toObject() {
+        return ({ id:this.id, value:this._value, min:this._min, max:this._max });
+    }
 }
 
 class Value extends Widget {
@@ -109,6 +132,10 @@ class Value extends Widget {
     get value() {
         return this._value;
     }
+    toObject() {
+        return ({id:this.id, value:this._value}); 
+    }
+    
 }
 
 

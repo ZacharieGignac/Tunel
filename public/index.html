@@ -1,0 +1,69 @@
+<html>
+
+<head>
+    <title>Test panel</title>
+    <script src="/public/tunel.js"></script>
+    <script>
+     /*
+    document.addEventListener('mousemove', (event) => {
+//console.log(`Mouse X: ${event.clientX}, Mouse Y: ${event.clientY}`);
+sendWidgetValue('mousex',event.clientX);
+sendWidgetValue('mousey', event.clientY);
+});
+*/
+
+
+        /*
+        $tunelWidgets('mousex').onChange(widget => {
+            document.getElementById('cursor').style.left = widget.value + 'px';
+        });
+        $tunelWidgets('mousey').onChange(widget => {
+            document.getElementById('cursor').style.top = widget.value + 'px';
+        });
+        */
+        
+
+        /*
+        $tunelEvents('client_connected').on((event) => {
+            alert(`Client connected: ${event.clientId}`);
+        });
+        */
+
+        //Handle projector power state
+        $tunelWidgets('projpower').onChange(widget => {
+            var btnprojon = document.getElementById('projon');
+            var btnprojoff = document.getElementById('projoff');
+            if (widget.value) {
+                btnprojon.disabled = true;
+                btnprojoff.disabled = false;
+            }
+            else {
+                btnprojon.disabled = false;
+                btnprojoff.disabled = true;
+            }
+            
+        });
+
+
+    </script>
+</head>
+
+<body>
+<!--
+    Client mouse X position: <span id="mousex" bind-widget="mousex" bind-property="innerHTML"></span><br>
+    Client mouse Y position: <span id="mousey" bind-widget="mousey" bind-property="innerHTML"></span><br>
+    <img src="cursor.png" id="cursor" style="position:absolute; left: 500; top: 100;">
+-->
+    Projecteur: <button id="projon" onclick="$tunelFunction('projpower').call(true);">Allumer</button>
+    <button id="projoff" onclick="$tunelFunction('projpower').call(false);">Éteindre</button>
+    <button id="projtoggle" onclick="$tunelFunction('projpower').call('toggle');">Toggle</button>
+
+    <br><br>
+    Volume: <input type="range" min="0" max="100" step="10" id="volume" bind-widget="volume" bind-property="value"  bind-event="input">
+</body>
+
+
+
+
+
+</html>
