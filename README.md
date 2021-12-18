@@ -22,10 +22,6 @@ This system is in early dev. Not much is working for now. This is mostly a proof
 * REST-API
 * Web-server
 * Token manager
-* SSH remote console server
-* Crestron CIP Client
-* Crestron CIP Server
-* Cisco Virtual Touchpanel (HTML)
 
 # Installation
 * Configure the "config" object in the tunel.js file (client-side)
@@ -82,16 +78,6 @@ JS
 $tunelWidgets('volume').addTwoWayBinding('volume', 'value', 'change');
 ```
 
-## Automatic binding without using any script (one way)
-```HTML
-Volume is at <span id="volume" binding-widget="volume" binding-property="innerHTML"></span>%
-```
-
-## Automatic binding without using any script (two way)
-```HTML
-<input type="range" id="volume" min="0" max="100" binding-widget="volume" binding-property="value" binding-event="onchange">
-```
-
 ## Calling a server-side function without return value
 ```JS
 $tunelFunction('testFunction').call();
@@ -103,42 +89,4 @@ $tunelFunction('testFunctionWithArg').call('yay!');
 $tunelFunction('getLampHours').call('args here', hours => {
     console.log(hours);
 });
-```
-
-# HTTP URL API
-## Get widget value:
-```
-http://ip/api/v1/token/widgets/widgetid/get
-```
-
-## Set widget value
-```
-http://ip/api/v1/token/widgets/widgetid/set/value
-```
-
-# REST API
-## Get widget value
-'HTTP GET' request to:
-```
-http://ip/api/v1/widgets
-```
-Body:
-```JS
-{
-  token:<token here>,
-  id:<id here>,
-}
-```
-## Get widget value
-'HTTP PUT' request to:
-```
-http://ip/api/v1/widgets
-```
-Body:
-```JS
-{
-  token:<token here>,
-  id:<id here>,
-  value:<value here>
-}
 ```

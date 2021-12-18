@@ -1,5 +1,7 @@
 const source = 'tnlconsole';
 const api = require('./api.js');
+const security = require('./security');
+
 
 class TunelConsole {
     constructor(mods) {
@@ -45,6 +47,18 @@ class TunelConsole {
                         break;
 
                         break;
+                    case 'access':
+                        if (split[1] == 'list') {
+                            console.log(security.getAccessList());
+                        }
+                        else if (split[1] == 'adduser') {
+                            var user = split[2];
+                            console.log(`User ${user} added. Below is the access token. COPY IT NOW. IT CANNOT BE RETRIEVED LATER.`);
+                            console.log(security.createAccess(user,"user"));
+                            console.log('');
+
+                        }
+                        break;
                     case 'help':
                         console.log(`--- Widgets ---`);
                         console.log(`widget set <name> <value>          -Set widget value`);
@@ -53,6 +67,10 @@ class TunelConsole {
                         console.log(`--- Clients ---`)
                         console.log(`client get *                       -Get all clients`);
                         console.log(``);
+                        console.log(`--- access ---`);
+                        console.log(`access list                        -List all access`)
+                        console.log(`access adduser <name>              -Create user and outputs login token`);
+                        console.log('');
                 }
 
 

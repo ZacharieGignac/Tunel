@@ -6,36 +6,49 @@ const tws = require('./tnlwebsocket');
 const tcons = require('./tnlconsole');
 const sharedfuncs = require('./sharedfunctions');
 const express = require('express');
+const security = require('./security');
+
+/*
+console.log(security.validateUserToken('testuser','ad71b5487a70152a146dfeffd3b9f9881473955f'));
+*/
+console.log(security.validateToken('6be1f61e3ae8f289f03a006c98dc87b32edae740'));
 
 
+
+
+
+
+
+
+
+console.log('Starting HTTP server...');
 var httpserver = express();
-
-console.log(__dirname + 'web');
 httpserver.use('/public', express.static(__dirname + '/public'));
 httpserver.get('/web', function (req, res) {
     res.sendFile('index.html', { root: __dirname + "/public" });
 });
 httpserver.listen(8088);
+console.log('Done.');
 
 
 
 
 httpserver.get('/api/v1/:token/widgets/:widgetId/get', function (req, res) {
-    if (req.params.token == '1') {
+    if (security.validateToken(req.params.token)) {
         let wdg = mods.widgets.get(req.params.widgetId);
         if (wdg && req.params.widgetId) {
             res.send({ id: wdg.id, value: wdg.value });
         }
         else {
-            res.send(`ERROR: Unknown widget or something something`);
+            res.send({ error:`unknown widgetid '${req.params.widgetId}'` });
         }
     }
     else {
-        res.send(`ERROR: Invalid token`);
+        res.send({error:'invalid token'});
     }
 });
 httpserver.get('/api/v1/:token/widgets/:widgetId/set/:value', function (req, res) {
-    if (req.params.token == '1') {
+    if (security.validateToken(req.params.token)) {
         let wdg = mods.widgets.get(req.params.widgetId);
         if (wdg && req.params.widgetId && req.params.value) {
             mods.widgets.set(req.params.widgetId,req.params.value);
@@ -43,11 +56,11 @@ httpserver.get('/api/v1/:token/widgets/:widgetId/set/:value', function (req, res
             res.send({ id: wdg.id, value: wdg.value });
         }
         else {
-            res.send(`ERROR: Unknown widget or wrong value or something something`);
+            res.send({error:`Unknown widgetId '${req.params.widgetId}' or wrong value '${req.params.value}'`});
         }
     }
     else {
-        res.send(`ERROR: Invalid token`);
+        res.send({error:'invalid token'});
     }
 });
 
@@ -149,5 +162,6 @@ api.websocket.init();
 /* load room script */
 const room = require('./room.js');
 const { Server } = require('ws');
+const { raw } = require('express');
 mods.room = new room.Room();
 api.room = room.room;
