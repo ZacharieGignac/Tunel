@@ -3,6 +3,13 @@ const api = require('./api.js');
 const security = require('./security');
 
 
+Array.prototype.myJoin = function(seperator,start,end){
+    if(!start) start = 0;
+    if(!end) end = this.length - 1;
+    end++;
+    return this.slice(start,end).join(seperator);
+};
+
 class TunelConsole {
     constructor(mods) {
         this.mods = mods;
@@ -18,7 +25,7 @@ class TunelConsole {
                                 if (split[3] == 'true') split[3] = true;
                                 if (split[3] == 'false') split[3] = false;
                                 console.log(`--> Widget SET id:${split[2]} value:${split[3]} `);
-                                api.widgets.updateWidget({ id: split[2], value: split[3] });
+                                api.widgetsManager.updateWidget({ id: split[2], value: split[3] });
                                 break;
                             case 'get':
                                 if (split[2] == '*') {
@@ -59,10 +66,19 @@ class TunelConsole {
 
                         }
                         break;
+                    case 'event':
+                        if (split[1] == 'broadcast') {
+                            api.events.event(split[2]).broadcast(split.myJoin(' ',3));
+                        }
+
+                        break;
                     case 'help':
                         console.log(`--- Widgets ---`);
                         console.log(`widget set <name> <value>          -Set widget value`);
                         console.log(`widget get <name/*>                -Get widget or all widgets`);
+                        console.log(``);
+                        console.log(`--- Events ---`)
+                        console.log(`event broadcast <name> <value>`)
                         console.log(``);
                         console.log(`--- Clients ---`)
                         console.log(`client get *                       -Get all clients`);
@@ -81,7 +97,7 @@ class TunelConsole {
 
     }
     init() {
-        api.widgets.addWidgetUpdateListener((event) => {
+        api.widgetsManager.addWidgetUpdateListener((event) => {
             console.log(`<-- Widget SET id:${event.id} value:${event.value}`);
         });
     }

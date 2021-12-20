@@ -1,0 +1,25 @@
+const weather = require('weather-js');
+const api = require('./api.js');
+const widgets = require('./tnlwidgets');
+
+
+
+function updateWeather() {
+    api.events.event('weather-updating').broadcast({region:'Québec, QC'});
+    weather.find({search: 'Québec, QC', degreeType: 'C'}, function(err, result) {
+        if(err) console.log(err);
+        tempcelcius.value = result[0].current.temperature;
+        weatherimage.value = result[0].current.imageUrl;
+      });
+}
+
+var tempcelcius = new widgets.Value('weather-temperature-celcius',0);
+var weatherimage = new widgets.Value('weather-image','');
+api.widgetsManager.loadWidgets([tempcelcius,weatherimage]);
+
+
+updateWeather();
+
+setInterval(function() {
+    updateWeather();
+},1800000);

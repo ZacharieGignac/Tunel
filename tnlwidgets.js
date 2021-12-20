@@ -51,6 +51,19 @@ class TunelWidgets {
             }
         }
     }
+    getWidgetClass(type) {
+        switch(type) {
+            case 'value':
+                return Value;
+                break;
+            case 'toggle':
+                return Toggle;
+                break;
+            case 'range':
+                return Range;
+                break;
+        }
+    }
 }
 
 class Widget {
@@ -134,15 +147,15 @@ class Value extends Widget {
     }
     toObject() {
         return ({id:this.id, value:this._value}); 
-    }
-    
+    }  
 }
 
+function test(){
+    console.log('test');
+}
 
 module.exports.TunelWidgets = TunelWidgets;
 module.exports.Toggle = Toggle;
 module.exports.Range = Range;
 module.exports.Value = Value;
-
-
-
+module.exports.test = test;

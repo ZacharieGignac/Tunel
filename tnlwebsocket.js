@@ -32,10 +32,14 @@ class TunelWebsocket {
         this.funcs = [];
         this.wss.on('close', this.onClose);
         this.wss.on('connection', (ws) => { this.onConnection(this, this.wss, ws) });
+
     }
     init() {
-        api.widgets.addWidgetUpdateListener((event) => {
+        api.widgetsManager.addWidgetUpdateListener((event) => {
             this.notifyWidgetChanged(event);
+        });
+        api.events.event().on(evt => {
+            this.broadcastEvent(evt.name, evt.value);
         });
     }
     test() {
@@ -70,11 +74,12 @@ class TunelWebsocket {
         clearInterval(interval);
     }
     startIntervalCheck(tnl) {
+        var that = this;
         setInterval(function ping() {
             tnl.wss.clients.forEach(function each(ws) {
                 if (ws.isAlive === false) {
                     console.log(`[QUIT] Client ${ws.clientId} (${ws._socket.remoteAddress}) (PING_TIMEOUT)`);
-                    this.broadcastEvent('client_disconnected', ws.clientId);
+                    that.broadcastEvent('client_disconnected', ws.clientId);
                     return ws.terminate();
                 }
 
@@ -218,48 +223,48 @@ class TunelWebsocket {
         ws.on('message', function message(data) {
 
             //console.log('received: %s', data);
-            /*try {*/
-            var dataObject = JSON.parse(data);
+            //try {
+                var dataObject = JSON.parse(data);
 
-            switch (dataObject.type) {
-                case 'pong':
-                    tnl.pong(ws, dataObject);
-                    break;
+                switch (dataObject.type) {
+                    case 'pong':
+                        tnl.pong(ws, dataObject);
+                        break;
 
-                case 'auth':
-                    tnl.auth(ws, dataObject);
-                    break;
+                    case 'auth':
+                        tnl.auth(ws, dataObject);
+                        break;
 
-                case 'init':
-                    tnl.initClient(ws, dataObject);
-                    break;
+                    case 'init':
+                        tnl.initClient(ws, dataObject);
+                        break;
 
-                case 'setwidgetvalue':
-                    //console.log(`<--- Set Widget Value id:${dataObject.id} value:${dataObject.value}`);
-                    api.widgets.updateWidget({ id: dataObject.id, value: dataObject.value, client: ws.clientId });
-                    //tnl.broadcastWidgetChanged(ws, dataObject); //do not update widget directly
-                    tnl.updateServerWidget(dataObject);
-                    break;
+                    case 'setwidgetvalue':
+                        //console.log(`<--- Set Widget Value id:${dataObject.id} value:${dataObject.value}`);
+                        api.widgetsManager.updateWidget({ id: dataObject.id, value: dataObject.value, client: ws.clientId });
+                        //tnl.broadcastWidgetChanged(ws, dataObject); //do not update widget directly
+                        tnl.updateServerWidget(dataObject);
+                        break;
 
-                case 'broadcastmessage':
-                    tnl.broadcastMessage(ws, dataObject);
-                    break;
+                    case 'broadcastmessage':
+                        tnl.broadcastMessage(ws, dataObject);
+                        break;
 
-                case 'functioncallwrtn':
-                    var rtn = api.sharedfunctions.callFunction(dataObject.functionName, dataObject.functionArgs);
-                    tnl.sendFunctionCallReturnValue(ws, dataObject.id, rtn);
-                    break;
+                    case 'functioncallwrtn':
+                        var rtn = api.sharedfunctions.callFunction(dataObject.functionName, dataObject.functionArgs);
+                        tnl.sendFunctionCallReturnValue(ws, dataObject.id, rtn);
+                        break;
 
-                case 'functioncall':
-                    api.sharedfunctions.callFunction(dataObject.functionName, dataObject.functionArgs);
-            }
+                    case 'functioncall':
+                        api.sharedfunctions.callFunction(dataObject.functionName, dataObject.functionArgs);
+                }
 
             /*}
-            
+
             catch (receiveerror) {
                 console.log(`[ERROR] (ws.on 'message') CLIENT:${ws.clientId} E:${receiveerror}`);
-            }*/
-
+            }
+*/
         });
     }
 

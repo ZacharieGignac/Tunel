@@ -28,6 +28,11 @@ var tunelInitCompleted = ()=>{};
 
 var tunelSocket = new WebSocket(`ws://${config.server.address}:${config.server.port}`);
 
+
+setInterval(function(){
+    tunelSocket.send(JSON.stringify({type:'keep-alive', value:'keep-alive'}));
+},60000);
+
 function makeid(length=50) {
     var result           = '';
     var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -221,7 +226,6 @@ tunelSocket.onmessage = function (message) {
                 throw new Error(`CRITICAL: VERSION MISMATCH - CLIENT:${config.tunelVersion} SERVER:${messageObject.version}`);
             }
             break;
-
         case 'event':
             processEvent(messageObject);
             break;

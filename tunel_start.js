@@ -7,6 +7,9 @@ const tcons = require('./tnlconsole');
 const sharedfuncs = require('./sharedfunctions');
 const express = require('express');
 const security = require('./security');
+const events = require('./events');
+
+
 
 /*
 console.log(security.validateUserToken('testuser','ad71b5487a70152a146dfeffd3b9f9881473955f'));
@@ -93,6 +96,7 @@ mods.console = new tcons.TunelConsole(mods);
 
 
 
+
 /*
 mods.widgets.addWidgetUpdateListener(w => { mods.websocket.notifyWidgetChanged(w) });
 
@@ -139,10 +143,12 @@ tnl.callFunction('test', 'MOU!!!!!!!', (rtn) => {
 
 /* populate API */
 api.main = this;
+api.events = events;
 api.websocket = mods.websocket;
 api.console = mods.console;
-api.widgets = mods.widgets;
+api.widgetsManager = mods.widgets;
 api.sharedfunctions = sharedfuncs;
+
 
 function ppo(val) {
     if (val == 'toggle') {
@@ -159,9 +165,27 @@ sharedfuncs.addSharedFunction('projpower', ppo);
 api.console.init();
 api.websocket.init();
 
+/*
+events.event().on(value => {
+
+    console.log(value);
+});
+*/
+
+/* Load other modules */
+const weather = require('./weather');
+
+
+
 /* load room script */
 const room = require('./room.js');
 const { Server } = require('ws');
 const { raw } = require('express');
 mods.room = new room.Room();
 api.room = room.room;
+
+
+
+//events.event('test').broadcast('moo');
+
+

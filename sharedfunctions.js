@@ -15,4 +15,3 @@ module.exports.callFunction = function callFunction(name, args) {
         }
     }
 }
-

@@ -211,6 +211,7 @@ tunelSocket.onmessage = function (message) {
             break;
 
         case 'init':
+            console.log(messageObject);
             if (messageObject.version.substring(0, messageObject.version.indexOf('.')) == config.tunelVersion.substring(0, config.tunelVersion.indexOf('.'))) {
                 console.log('Version match');
                 processInit(messageObject.widgets);
