@@ -48,7 +48,7 @@ class TunelConsole {
                     case 'get':
                         if (split[2] == '*') {
                             api.websocket.wss.clients.forEach(client => {
-                                console.log({ clientId: client.clientId, remoteAddress: client._socket.remoteAddress, isAlive: client.isAlive, auth: client.auth, token: client.token });
+                                console.log({ clientId: client.clientId, remoteAddress: client._socket.remoteAddress, isAlive: client.isAlive, auth: client.auth, token: client.token, latency:client.latency });
                             });
                         }
                         break;

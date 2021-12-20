@@ -119,6 +119,7 @@ class TunelWebsocket {
     pong(ws, dataObject) {
         let d = new Date().getTime();
         //console.log(`<--- Pong ${ws._socket.remoteAddress} : Roundtrip ${(d - dataObject.ticks)}ms`);
+        ws.latency = (d - dataObject.ticks);
         this.heartbeat(ws);
     }
 
