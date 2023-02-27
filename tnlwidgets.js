@@ -9,7 +9,7 @@ class TunelWidgets {
             this.widgetsList.push(w);
             w.onChange(change => {
                 this._widgetUpdateListeners.forEach(listener => {
-                    listener({id:change.id, value:change.value});
+                    listener({ id: change.id, value: change.value });
                 });
             });
         });
@@ -29,7 +29,7 @@ class TunelWidgets {
     getWidgetsForWeb() {
         var widlist = [];
         for (var i = 0; i < this.widgetsList.length; i++) {
-            widlist.push({id:this.widgetsList[i].id, value:this.widgetsList[i].value });
+            widlist.push({ id: this.widgetsList[i].id, value: this.widgetsList[i].value });
         };
         return widlist;
     }
@@ -52,7 +52,7 @@ class TunelWidgets {
         }
     }
     getWidgetClass(type) {
-        switch(type) {
+        switch (type) {
             case 'value':
                 return Value;
                 break;
@@ -75,29 +75,27 @@ class Widget {
     }
     _valueChanged(widget) {
         this._onChangeListeners.forEach(listener => {
-            listener({id:widget.id, value:widget._value});
+            listener({ id: widget.id, value: widget._value });
         });
-        
+
     }
 }
 
 class Toggle extends Widget { //TODO TRUE FALSE UNIQUEMENT
-    constructor(id,defaultvalue) {
+    constructor(id, defaultvalue = false) {
         super();
         this.id = id;
         this.value = defaultvalue;
     }
-    toggle () {
+    toggle() {
         this.value = !this.value;
     }
-    set value(v) {
-        if (v == 'on') { v = true }
-        else if (v == 'off') { v = false }
-        if (v == 'true') { v = true }
-        if (v == 'false') { v = false }
-        else if (v == true || v == false) { }
-        else {
-            v = false;
+    set value(v=false) {
+        if (typeof v != 'boolean') {
+            if (v.toLowerCase() == 'on') { v = true }
+            else if (v.toLowerCase() == 'off') { v = false }
+            else if (v.toLowerCase() == 'true') { v = true }
+            else if (v.toLowerCase() == 'false') { v = false }
         }
         this._value = v;
         super._valueChanged(this);
@@ -106,7 +104,7 @@ class Toggle extends Widget { //TODO TRUE FALSE UNIQUEMENT
         return this._value;
     }
     toObject() {
-        return ({ id:this.id, value:this._value });
+        return ({ id: this.id, value: this._value });
     }
 }
 
@@ -128,7 +126,7 @@ class Range extends Widget {
         return this._value;
     }
     toObject() {
-        return ({ id:this.id, value:this._value, min:this._min, max:this._max });
+        return ({ id: this.id, value: this._value, min: this._min, max: this._max });
     }
 }
 
@@ -146,11 +144,11 @@ class Value extends Widget {
         return this._value;
     }
     toObject() {
-        return ({id:this.id, value:this._value}); 
-    }  
+        return ({ id: this.id, value: this._value });
+    }
 }
 
-function test(){
+function test() {
     console.log('test');
 }
 

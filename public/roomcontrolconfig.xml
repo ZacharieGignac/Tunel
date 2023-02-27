@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="/public/test.xsl"?>
+<Extensions>
+<Version>1.8</Version>
+<Panel>
+<Order>6</Order>
+<PanelId>panel_1</PanelId>
+<Type>Home</Type>
+<Icon>Lightbulb</Icon>
+<Name>Panel</Name>
+<ActivityType>Custom</ActivityType>
+<Page>
+<Name>Test Page</Name>
+<Row>
+<Name>Test row 1</Name>
+<Widget>
+<WidgetId>widget_10</WidgetId>
+<Name>Button 1</Name>
+<Type>Button</Type>
+<Options>size=2</Options>
+</Widget>
+</Row>
+<Row>
+<Name>Test row 2</Name>
+<Widget>
+<WidgetId>widget_11</WidgetId>
+<Name>Button 2</Name>
+<Type>Button</Type>
+<Options>size=2</Options>
+</Widget>
+</Row>
+<Options/>
+</Page>
+</Panel>
+</Extensions>

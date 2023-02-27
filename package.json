@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "express": "^4.17.2",
+    "jsxapi": "^5.1.1",
     "sha1": "^1.1.1",
     "weather-js": "^2.0.0",
     "ws": "^8.3.0"
