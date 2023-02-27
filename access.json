@@ -1,1 +1,1 @@
-{"users":[{"user":"zagig","hash":"035827405c48b7630741ada6ed1f738eb811c4fd","salt":"04068e40da2e7e2bd96d27736aee46e3338f09e8","level":"user"}]}
+{"users":[{"user":"zagig","hash":"035827405c48b7630741ada6ed1f738eb811c4fd","salt":"04068e40da2e7e2bd96d27736aee46e3338f09e8","level":"user"},{"user":"CiscoCodec","hash":"1858315b6ddcfa69e0ce60610b48084d42c53414","salt":"4d74dd1a281f3e875e15973f05b3a0e30f540d3b","level":"user"},{"user":"bobby","hash":"71c7bb1fb7887d29820e859c81b7db33ece82b66","salt":"d9b60ce5beeddc1e01bfe7fc5c4eed7837de863f","level":"user"}]}

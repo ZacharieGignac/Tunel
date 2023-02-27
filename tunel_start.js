@@ -43,27 +43,27 @@ httpserver.get('/api/v1/:token/widgets/:widgetId/get', function (req, res) {
             res.send({ id: wdg.id, value: wdg.value });
         }
         else {
-            res.send({ error:`unknown widgetid '${req.params.widgetId}'` });
+            res.send({ error: `unknown widgetid '${req.params.widgetId}'` });
         }
     }
     else {
-        res.send({error:'invalid token'});
+        res.send({ error: 'invalid token' });
     }
 });
 httpserver.get('/api/v1/:token/widgets/:widgetId/set/:value', function (req, res) {
     if (security.validateToken(req.params.token)) {
         let wdg = mods.widgets.get(req.params.widgetId);
         if (wdg && req.params.widgetId && req.params.value) {
-            mods.widgets.set(req.params.widgetId,req.params.value);
+            mods.widgets.set(req.params.widgetId, req.params.value);
             let wdg = mods.widgets.get(req.params.widgetId);
             res.send({ id: wdg.id, value: wdg.value });
         }
         else {
-            res.send({error:`Unknown widgetId '${req.params.widgetId}' or wrong value '${req.params.value}'`});
+            res.send({ error: `Unknown widgetId '${req.params.widgetId}' or wrong value '${req.params.value}'` });
         }
     }
     else {
-        res.send({error:'invalid token'});
+        res.send({ error: 'invalid token' });
     }
 });
 
@@ -118,6 +118,8 @@ var mouseX = new twidgets.Value('mousex', 0);
 var mouseY = new twidgets.Value('mousey', 0);
 
 var systemname = new twidgets.Value('systemname', 'PVE-DEV');
+
+
 
 /*
 volume.onChange((value) => {
@@ -189,3 +191,57 @@ api.room = room.room;
 //events.event('test').broadcast('moo');
 
 
+auth = {
+    username: 'USERNAME',
+    password: 'PASSWORD'
+}
+
+
+
+
+
+const jsxapi = require('jsxapi');
+jsxapi.connect(`ssh://192.168.86.72`, auth)
+    .on('error', console.error)
+    .on('ready', async (xapi) => {
+        console.log('Codec connecté!');
+        bindWidgetMute(xapi);
+        autoMapWidget(xapi);
+    });
+
+
+function bindWidgetMute(xapi) {
+    var codecmute = new twidgets.Toggle('codecmute'); //Création d'un widget serveur
+    mods.widgets.loadWidgets([codecmute]);  //Load le widget
+    //Inscription au changement d'état du widget
+    codecmute.onChange(widget => {
+        if (widget.value) {
+            xapi.Command.Audio.Microphones.Mute();
+        }
+        else {
+            xapi.Command.Audio.Microphones.Unmute();
+        }
+    });
+
+    //Ramasse la valeur du mute actuel et l'assigne au widget
+    xapi.Status.Audio.Microphones.Mute.get().then(value => {
+        codecmute.value = value;
+    });
+
+    //Inscription au changement de valeur du mute sur le codec
+    xapi.Status.Audio.Microphones.Mute.on(value => {
+        codecmute.value = value;
+    });       
+}
+
+async function autoMapWidget(xapi) {
+    var widgetList = await xapi.Status.UserInterface.Extensions.Widget.get();
+    widgetList.forEach(widget => {
+        let tempWidget = new twidgets.Value(widget.WidgetId,widget.Value);
+        mods.widgets.loadWidgets([tempWidget]);
+    });
+    
+    xapi.Event.UserInterface.Extensions.Widget.Action.on(action => {
+        mods.widgets.set(action.WidgetId,action.Value);
+    });
+}
